@@ -54,3 +54,7 @@ You can narrow down the stages of the build that you want to execute with comman
 
 * Create a script to package this all up
 * Create a template `Android.mk` file
+
+### Acknowledgements
+
+So I based my starting point for this on the work of Dr C. Scott Ananian: http://cananian.livejournal.com/63595.html
