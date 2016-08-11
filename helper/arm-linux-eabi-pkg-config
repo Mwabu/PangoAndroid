@@ -1,0 +1,3 @@
+#!/bin/bash
+SYSROOT=$TOOLCHAIN/../sysroot
+PKG_CONFIG_LIBDIR=$SYSROOT/usr/lib/pkgconfig  pkg-config "$@"

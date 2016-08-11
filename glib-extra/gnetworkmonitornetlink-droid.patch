@@ -1,0 +1,16 @@
+--- glib-2.40.0/gio/gnetworkmonitornetlink.c	2014-02-03 17:40:41.000000000 +0000
++++ glib-extra/gio-gnetworkmonitornetlink.c	2016-08-10 14:05:55.000000000 +0100
+@@ -382,10 +382,12 @@
+                * IPv6 link-local multicast routes, which are added and
+                * removed all the time for some reason.
+                */
++			   struct in6_addr* dest_addr = (struct in6_addr*)dest;
++
+               if (!nl->priv->dump_networks &&
+                   rtmsg->rtm_family == AF_INET6 &&
+                   rtmsg->rtm_dst_len != 0 &&
+-                  IN6_IS_ADDR_MC_LINKLOCAL (dest))
++                  IN6_IS_ADDR_MC_LINKLOCAL (dest_addr))
+                 continue;
+ 
+               if (msg->nlmsg_type == RTM_NEWROUTE)

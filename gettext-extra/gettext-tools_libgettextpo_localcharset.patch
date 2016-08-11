@@ -1,0 +1,16 @@
+--- downloads/gettext-0.19.7/gettext-tools/libgettextpo/localcharset.c	2015-12-27 23:09:03.000000000 +0000
++++ gettext-0.19.7/gettext-tools/libgettextpo/localcharset.c	2016-08-11 18:38:38.000000000 +0100
+@@ -385,7 +385,7 @@
+    The result must not be freed; it is statically allocated.
+    If the canonical name cannot be determined, the result is a non-canonical
+    name.  */
+-
++#ifndef USE_ICONV_LOCALE_CHARSET
+ #ifdef STATIC
+ STATIC
+ #endif
+@@ -611,3 +611,4 @@
+ 
+   return codeset;
+ }
++#endif
