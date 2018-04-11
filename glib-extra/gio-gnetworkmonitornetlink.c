@@ -293,14 +293,13 @@ read_netlink_messages (GSocket      *socket,
   GNetworkMonitorNetlink *nl = user_data;
   GInputVector iv;
   gssize len;
-  GSocketControlMessage **cmsgs = NULL;
-  gint num_cmsgs = 0, i, flags;
+  gint flags;
   GError *error = NULL;
-  GCredentials *creds;
-  uid_t sender;
+  GSocketAddress *addr = NULL;
   struct nlmsghdr *msg;
   struct rtmsg *rtmsg;
   struct rtattr *attr;
+  struct sockaddr_nl source_sockaddr;
   gsize attrlen;
   guint8 *dest, *gateway, *oif;
   gboolean retval = TRUE;
@@ -322,23 +321,30 @@ read_netlink_messages (GSocket      *socket,
 
   iv.buffer = g_malloc (len);
   iv.size = len;
-  len = g_socket_receive_message (nl->priv->sock, NULL, &iv, 1,
-                                  &cmsgs, &num_cmsgs, NULL, NULL, &error);
+  len = g_socket_receive_message (nl->priv->sock, &addr, &iv, 1,
+                                  NULL, NULL, NULL, NULL, &error);
   if (len < 0)
     {
       g_warning ("Error on netlink socket: %s", error->message);
+      g_clear_object (&addr);
       g_error_free (error);
       if (nl->priv->dump_networks)
         finish_dump (nl);
       return FALSE;
     }
 
-  if (num_cmsgs != 1 || !G_IS_UNIX_CREDENTIALS_MESSAGE (cmsgs[0]))
-    goto done;
+  if (!g_socket_address_to_native (addr, &source_sockaddr, sizeof (source_sockaddr), &error))
+    {
+      g_warning ("Error on netlink socket: %s", error->message);
+      g_clear_object (&addr);
+      g_error_free (error);
+      if (nl->priv->dump_networks)
+        finish_dump (nl);
+      return FALSE;
+    }
 
-  creds = g_unix_credentials_message_get_credentials (G_UNIX_CREDENTIALS_MESSAGE (cmsgs[0]));
-  sender = g_credentials_get_unix_user (creds, NULL);
-  if (sender != 0)
+  /* If the sender port id is 0 (not fakeable) then the message is from the kernel */
+  if (source_sockaddr.nl_pid != 0)
     goto done;
 
   msg = (struct nlmsghdr *) iv.buffer;
@@ -382,12 +388,13 @@ read_netlink_messages (GSocket      *socket,
                * IPv6 link-local multicast routes, which are added and
                * removed all the time for some reason.
                */
-			   struct in6_addr* dest_addr = (struct in6_addr*)dest;
+#define UNALIGNED_IN6_IS_ADDR_MC_LINKLOCAL(a)           \
+              ((a[0] == 0xff) && ((a[1] & 0xf) == 0x2))
 
               if (!nl->priv->dump_networks &&
                   rtmsg->rtm_family == AF_INET6 &&
                   rtmsg->rtm_dst_len != 0 &&
-                  IN6_IS_ADDR_MC_LINKLOCAL (dest_addr))
+                  UNALIGNED_IN6_IS_ADDR_MC_LINKLOCAL (dest))
                 continue;
 
               if (msg->nlmsg_type == RTM_NEWROUTE)
@@ -419,11 +426,8 @@ read_netlink_messages (GSocket      *socket,
     }
 
  done:
-  for (i = 0; i < num_cmsgs; i++)
-    g_object_unref (cmsgs[i]);
-  g_free (cmsgs);
-
   g_free (iv.buffer);
+  g_clear_object (&addr);
 
   if (!retval && nl->priv->dump_networks)
     finish_dump (nl);

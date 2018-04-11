@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 # Note this script requires an environment variable called ANDROID_NDK_HOME, mine is /Users/guysherman/Library/Android/ndk-bundle
-export TOOLCHAIN=$TOP/../../toolchains/arm-android/bin
+export TOP="`pwd`"
+export TOOLCHAIN=$TOP/../../toolchains/arm-android-r11/bin
 export SYSROOT=$TOOLCHAIN/../sysroot
 export CONFIGURE_HOST="arm-linux-eabi"
 export CROSS_PREFIX="arm-linux-androideabi-"
@@ -10,7 +11,8 @@ export HOSTCFLAGS=" -fpic -ffunction-sections -funwind-tables $ARMV7 -Wno-psabi 
 export HOSTLDFLAGS="-Wl,--fix-cortex-a8  -Wl,--no-undefined -Wl,-z,noexecstack"
 export FIXSHARED="--enable-static --disable-shared ac_cv_host=$CONFIGURE_HOST"
 export FIXSHARED2="--enable-static ac_cv_host=$CONFIGURE_HOST"
-export TOP="`pwd`"
+export FIXSTATIC="--enable-static --disable-shared ac_cv_host=$CONFIGURE_HOST"
+export FIXSTATIC2="--enable-static ac_cv_host=$CONFIGURE_HOST"
 export GLIB_BIN=/usr/local/Cellar/glib/2.46.2/bin
 
 export PKG_CONFIG_LIBDIR=$SYSROOT/usr/lib/pkgconfig

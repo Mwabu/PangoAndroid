@@ -6,3 +6,7 @@ all: cpu-features.o
 
 cpu-features.o:
 	$(CC) -c cpu-features.c -o cpu-features.o
+
+.PHONY: clean
+clean:
+	rm *.o *.a
