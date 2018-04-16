@@ -5,10 +5,10 @@ echo "TOP is: $TOP"
 echo "Toolchain is: $TOOLCHAIN"
 echo "Sysroot is: $SYSROOT"
 
-set -e
 
-with_download=true
-with_extract=true
+
+with_download=false
+with_extract=false
 with_iconv=true
 with_ffi=true
 with_zlib=true
@@ -16,7 +16,7 @@ with_xml2=true
 with_png=true
 with_gettext=true
 with_glib=true
-with_gi=false
+with_gi=true
 with_atk=true
 with_pixman=true
 with_ft2=true
@@ -25,42 +25,47 @@ with_cairo=true
 with_harfbuzz=true
 with_pango=true
 with_download_all=false
-with_extract_all=false
+with_extract_all=true
 
 mkdir -p downloads
+
+rm -f $SYSROOT/usr/lib/libz.so
 
 pushd glob
 make clean
 make
+make install
 popd
 
 pushd cpufeatures
 make clean
 make
+make install
 popd
 
-while :; do
-  case "$1" in
-	--skip-download) with_download=false; shift;;
-	--skip-extract) with_extract=false; shift;;
-    --skip-iconv) with_iconv=false; shift;;
-	--skip-ffi) with_ffi=false; shift;;
-	--skip-gettext) with_gettext=false; shift;;
-	--skip-glib) with_glib=false; shift;;
-	--skip-gi) with_gi=false; shift;;
-	--skip-atk) with_atk=false; shift;;
-	--skip-xml2) with_xml2=false; shift;;
-	--skip-pixman) with_pixman=false; shift;;
-	--skip-ft2) with_ft2=false; shift;;
-	--skip-zlib) with_zlib=false; shift;;
-	--skip-png) with_png=false; shift;;
-	--skip-fc) with_fc=false; shift;;
-	--skip-cairo) with_cairo=false; shift;;
-	--skip-pango) with_pango=false; shift;;
-	--skip-harfbuzz) with_harfbuzz=false; shift;;
-    *) break ;;
-  esac
-done
+set -e
+
+#while :; do
+#  case "$1" in
+#	--with-download) with_download=true; shift;;
+#    --with-iconv) with_iconv=true; shift;;
+#	--with-ffi) with_ffi=true; shift;;
+#	--with-gettext) with_gettext=true; shift;;
+#	--with-glib) with_glib=true; shift;;
+#	--with-gi) with_gi=true; shift;;
+#	--with-atk) with_atk=true; shift;;
+#	--with-xml2) with_xml2=true; shift;;
+#	--with-pixman) with_pixman=true; shift;;
+#	--with-ft2) with_ft2=true; shift;;
+#	--with-zlib) with_zlib=true; shift;;
+#	--with-png) with_png=true; shift;;
+#	--with-fc) wtrueith_fc=true; shift;;
+#	--with-cairo) with_cairo=true; shift;;
+#	--with-pango) with_pango=true; shift;;
+#	--with-harfbuzz) with_harfbuzz=true; shift;;
+#    *) break ;;
+#  esac
+#done
 
 if $with_download_all; then
 	mkdir downloads
@@ -87,16 +92,16 @@ if $with_extract_all; then
 	tar -xzf downloads/libffi-3.2.1.tar.gz -C .
 	tar -xzf downloads/libxml2-2.9.3.tar.gz -C .
 	tar -xzf downloads/zlib-1.2.11.tar.gz -C .
-	tar -xzf downloads/libpng-1.6.34.tar.xz -C .
-	tar -xzf downloads/gettext-0.19.7.tar.xz -C .
-	tar -xzf downloads/glib-2.48.2.tar.xz -C .
-	tar -xzf downloads/atk-2.20.0.tar.xz -C .
+	tar -xf downloads/libpng-1.6.34.tar.xz -C .
+	tar -xf downloads/gettext-0.19.7.tar.xz -C .
+	tar -xf downloads/glib-2.48.2.tar.xz -C .
+	tar -xf downloads/atk-2.20.0.tar.xz -C .
 	tar -xzf downloads/pixman-0.34.0.tar.gz -C .
 	tar -xzf downloads/freetype-2.6.3.tar.gz -C .
 	tar -xzf downloads/fontconfig-2.11.1.tar.gz -C .
-	tar -xzf downloads/cairo-1.14.6.tar.xz -C .
-	tar -xzf downloads/harfbuzz-1.2.6.tar.bz2 -C .
-	tar -xzf downloads/pango-1.40.1.tar.xz -C .
+	tar -xf downloads/cairo-1.14.6.tar.xz -C .
+	tar -xf downloads/harfbuzz-1.2.6.tar.bz2 -C .
+	tar -xf downloads/pango-1.40.1.tar.xz -C .
 fi
 
 if $with_iconv; then
@@ -105,6 +110,7 @@ if $with_iconv; then
 			wget http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz
 		popd
 	fi
+
 	if $with_extract; then
 		tar -xzf downloads/libiconv-1.14.tar.gz -C .
 	fi
@@ -184,7 +190,7 @@ if $with_png; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/libpng-1.6.34.tar.xz -C .
+		tar -xf downloads/libpng-1.6.34.tar.xz -C .
 	fi
 	
 	pushd libpng-1.6.34
@@ -205,7 +211,7 @@ if $with_gettext; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/gettext-0.19.7.tar.xz -C .
+		tar -xf downloads/gettext-0.19.7.tar.xz -C .
 	fi
 	
 	pushd gettext-0.19.7
@@ -231,7 +237,7 @@ if $with_glib; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/glib-2.48.2.tar.xz -C .
+		tar -xf downloads/glib-2.48.2.tar.xz -C .
 	fi
 	
 	pushd glib-2.48.2
@@ -261,7 +267,7 @@ if $with_atk; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/atk-2.20.0.tar.xz -C .
+		tar -xf downloads/atk-2.20.0.tar.xz -C .
 	fi
 	
 	pushd atk-2.20.0
@@ -344,7 +350,7 @@ if $with_cairo; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/cairo-1.14.6.tar.xz -C .
+		tar -xf downloads/cairo-1.14.6.tar.xz -C .
 	fi
 	
 	pushd cairo-1.14.6
@@ -362,7 +368,7 @@ if $with_harfbuzz; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/harfbuzz-1.2.6.tar.bz2 -C .
+		tar -xf downloads/harfbuzz-1.2.6.tar.bz2 -C .
 	fi
 	
 	pushd harfbuzz-1.2.6
@@ -381,7 +387,7 @@ if $with_pango; then
 		popd
 	fi
 	if $with_extract; then
-		tar -xzf downloads/pango-1.40.1.tar.xz -C .
+		tar -xf downloads/pango-1.40.1.tar.xz -C .
 	fi
 	
 	pushd pango-1.40.1
@@ -394,3 +400,7 @@ if $with_pango; then
 	make install
 	popd
 fi
+
+
+
+

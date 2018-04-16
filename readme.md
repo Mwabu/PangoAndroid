@@ -5,16 +5,27 @@ and its necessary dependencies for android, both ARM and x86.
 
 
 ## Getting a toolchain
-Before you can build, you need to set up a toolchain. You can do this by running the following command. Note that `$NDK` might be `$NDK_ROOT`, or you may even have to set it up yourself.
+The scripts now generate their own toolchains as needed, what you must ensure is that the `$NDK_ROOT` environment variable is set to the root of your ndk bundle.
+
+If for some reason you want to set up the toolchain yourself, you can do this by running the following command (for more see https://developer.android.com/ndk/guides/standalone_toolchain.html).
 
 ```
-$> $NDK/build/tools/make-standalone-toolchain.sh \
+$> $NDK_ROOT/build/tools/make-standalone-toolchain.sh \
 --arch=arm --platform=android-16 --install-dir=/tmp/my-android-toolchain
 ```
+## Other dependencies
 
+* build-essential
+* autoconf
+* automake
+* libtool-bin
+* ragel
+* gperf
+* gtk-doc-tools
+* libglib2.0-dev
 
 ## Setting up the build scripts
-Once you have your toolchains (you can get x86 by using `--arch=x86`, see more https://developer.android.com/ndk/guides/standalone_toolchain.html), you'll need to set the location of your toolchains in `build-libs-arm.sh` and `build-libs-x86.sh`:
+The build scripts now create their own toolchains, so you do not need to modify them at all. If you choose to create the toolchain yourself you will need to set the location in the scripts `build-libs-arm.sh` and `build-libs-x86.sh`:
 
 ```
 export TOOLCHAIN=<path-to-your-toolchain>/bin
@@ -31,24 +42,6 @@ The script runs in several phases. First it downloads particular versions of all
 Then it extracts the downloaded libraries, and then it begins building the libraries in an order that seems
 to satisfy all the dependencies.
 
-You can narrow down the stages of the build that you want to execute with commandline arguments:
-
-* `--skip-download`: don't download libraries (ie you've already got them)
-* `--skip-extract`: don't extract zips (ie you've already done that)
-* `--skip-iconv`: don't build libiconv
-* `--skip-ffi`: don't build libffi
-* `--skip-gettext`: don't build gettext (libintl)
-* `--skip-glib`: don't build glib
-* `--skip-atk`: don't build atk
-* `--skip-xml2`: don't build libxml2
-* `--skip-pixman`: don't build pixman
-* `--skip-ft2`: don't build freetype2
-* `--skip-zlib`: don't build zlib
-* `--skip-png`: don't build libpng
-* `--skip-fc`: don't build fontconfig
-* `--skip-cairo`: don't build cairo
-* `--skip-pango`: don't build pango
-* `--skip-harfbuzz`: don't build harfbuzz
 
 ## TODO
 

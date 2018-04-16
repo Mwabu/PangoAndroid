@@ -10,6 +10,10 @@ glob.o:
 issetugid.o:
 	$(CC) -c issetugid.c $(CFLAGS) -I./ -o issetugid.o
 
+install:
+	cp libglob.a $(SYSROOT)/usr/lib/libglob.a
+	cp glob.h $(SYSROOT)/usr/include/glob.h
+
 .PHONY: clean
 clean:
 	rm -f *.o *.a
